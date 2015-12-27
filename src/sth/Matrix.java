@@ -175,6 +175,82 @@ public class Matrix {
 		return new Matrix(mat1);
 	}
 	
+	//Switch rows
+	public Matrix switchRows(int row1, int row2){
+		Fraction[] temp;
+		temp = matrix[row1];
+		matrix[row1] = matrix[row2];
+		matrix[row2] = temp;
+		return new Matrix(matrix);
+	}
+	
+	//Switch columns
+	public Matrix switchCols(int col1,int col2){
+		return this.transpose().switchRows(col1,col2).transpose();
+	}
+	
+	//Scale a row
+	public Matrix scaleRow(int i,Fraction c){
+		matrix[i] = this.row(i).scale(c).mat()[0];
+		return new Matrix(matrix);
+	}
+	
+	public Matrix scaleRow(int i,int c){
+		return scaleRow(i,new Fraction(c));
+	}
+	
+	public Matrix scaleRow(int i, double c){
+		return scaleRow(i,new Fraction(c));
+	}
+	
+	//Scale a column
+	public Matrix scaleCol(int j,Fraction c){
+		return this.transpose().scaleRow(j, c).transpose();
+	}
+	
+	public Matrix scaleCol(int j,int c){
+		return scaleCol(j,new Fraction(c));
+	}
+	
+	public Matrix scaleCol(int j,double c){
+		return scaleCol(j,new Fraction(c));
+	}
+	
+	//Add one row to another
+	public Matrix addRowToRow(int row1,int row2,Fraction c){
+		matrix[row2] = this.row(row2).plus(this.row(row1).scale(c)).mat()[0];
+		return new Matrix(matrix);
+	}
+	
+	public Matrix addRowToRow(int row1,int row2,int c){
+		return addRowToRow(row1,row2,new Fraction(c));
+	}
+	
+	public Matrix addRowToRow(int row1,int row2,double c){
+		return addRowToRow(row1,row2,new Fraction(c));
+	}
+	
+	public Matrix addRowToRow(int row1,int row2){
+		return addRowToRow(row1,row2,1);
+	}
+	
+	//Add one column to another
+	public Matrix addColToCol(int col1,int col2,Fraction c){
+		return this.transpose().addRowToRow(col1,col2,c).transpose();
+	}
+	
+	public Matrix addColToCol(int col1,int col2,int c){
+		return addColToCol(col1,col2,new Fraction(c));
+	}
+	
+	public Matrix addColToCol(int col1,int col2,double c){
+		return addColToCol(col1,col2,new Fraction(c));
+	}
+	
+	public Matrix addColToCol(int col1,int col2){
+		return addColToCol(col1,col2,1);
+	}
+	
 	//Augments a matrix with another matrix
 	public Matrix augment(Matrix B){
 		//Sufficient condition for augmentation
@@ -284,11 +360,56 @@ public class Matrix {
 		}
 	}
 	
-	
-	
+	//Row Echelon Form (REF)
+	public Matrix REF(){
+			Fraction zero = new Fraction();
+			Fraction one = new Fraction(1);
+			Fraction neg = new Fraction(-1);
+			int n = matrix.length;
+			
+			Matrix A = this;
+			//The k-loop controls the elimination process
+			for(int k = 0; k < n - 1; k++){
+				
+				//If k-th entry is zero
+				if(A.mat()[k][k].isEqualTo(zero)){
+					int l;
+					//look for row with no zero k-th entry
+					for(l = k+1; l < n; l++){
+						//If such a row is found, switch the rows and stop the loop
+						if(A.mat()[l][k].isEqualTo(zero) == false){
+							A = A.switchRows(k,l);
+							l = n;
+						}
+					}
+					//If no such row is found
+					if(l == n)
+						continue;
+				}
+				
+				//If k-th entry is not yet equal to one
+				if(A.mat()[k][k].isEqualTo(one) == false)
+					A = A.scaleRow(k,mat()[k][k].inverse());
+				
+				//Elimination Process
+				for(int i = k+1; i < n; i++)
+					A = A.addRowToRow(k, i,A.mat()[i][k].times(neg));
+				
+			}
+			if(A.mat()[n-1][n-1].isEqualTo(one) == false)
+				A = A.scaleRow(n-1, A.mat()[n-1][n-1].inverse());
+			return A;
+		}
+
+	//Reduced Row Echelon Form (RREF)
+	public Matrix RREF(){
+		Matrix A = this;
+		A = A.REF();
+		//Write code here
+		return A;
+	}
+		
 	/*OPERATIONS*/
-	
-	//Transpose
 	
 	//Transpose
 	public Matrix transpose(){
@@ -299,8 +420,6 @@ public class Matrix {
 
 		return new Matrix(C);	
 	}
-	
-	//Scalar Multiplication
 	
 	//Scalar multiplication: for Fraction, integer, and double constants
 	public Matrix scale(Fraction c){
@@ -320,8 +439,6 @@ public class Matrix {
 	public Matrix scale(double c){
 		return scale(new Fraction(c));
 	}
-	
-	//Addition
 
 	//Addition
 	public Matrix plus(Matrix B){
@@ -335,15 +452,11 @@ public class Matrix {
 				mat1[i][j] = this.mat()[i][j].plus(B.mat()[i][j]);
 		return new Matrix(mat1);
 	}
-	
-	//Subtraction
 
 	//Subtraction
 	public Matrix minus(Matrix B){
 		return this.plus(B.scale(-1));
 	}
-	
-	//Multiplication
 
 	//Multiplication
 	public Matrix times(Matrix B){
@@ -358,5 +471,8 @@ public class Matrix {
 		
 		return new Matrix(mat1);
 	}
+	
+	
+
 	
 }

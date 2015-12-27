@@ -7,16 +7,16 @@ public class sth {
 						{0,0,2,6,3},
 						{0,0,3,4,1},
 						{0,0,0,0,2}};
-		int[][] mat2 = {{1,-2},
-						{2,-1}};
+		int[][] mat2 = {{1,-2,3,9},
+						{-1,3,0,-4},
+						{2,-5,5,17}};
 		//int[][] mat3 = {{-1,0},{3,1},{2,4}};
 		//int[] mat2 = {1,4,3};
-		Matrix A = new Matrix(mat1);
+		Matrix A = new Matrix(mat2);
 		//Matrix B = new Matrix(mat2);
 		//Matrix C = new Matrix(mat3);
 		
-		System.out.println(A.transpose().det().toString());
+		System.out.println(A.REF().toString());
+		
 	}
-	
-	 
 }

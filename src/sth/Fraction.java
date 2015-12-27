@@ -71,10 +71,28 @@ class Fraction {
    */
   public String toString()   {
     int thisGcd = gcd(numerator, denominator); 
+    if(numerator == 0)
+    	return "0";
+    if(numerator/thisGcd<0 && denominator/thisGcd<0){
+    	if(numerator/thisGcd*(-1)!=denominator/thisGcd*(-1))
+    		return (numerator/thisGcd*(-1) + "/" + denominator/thisGcd*(-1));
+    	else
+    		return String.valueOf(numerator/thisGcd*(-1));
+    }
     if(denominator/thisGcd!=1)
     	return (numerator/thisGcd + "/" + denominator/thisGcd);
     else
     	return String.valueOf(numerator/thisGcd);
+  }
+  
+  //Converts String to Fraction
+  public static Fraction parseFract(String s){
+	  double x = Double.parseDouble(s.substring(0, s.indexOf('/'))); 
+	  double y = Double.parseDouble(s.substring(s.indexOf('/')+1));
+	  Fraction a = new Fraction(x);
+	  Fraction b = new Fraction(y);
+	  
+	  return a.over(b);
   }
 
   /** Calculates and returns the double floating point value of a fraction.
@@ -108,10 +126,11 @@ class Fraction {
 	  return numerator;
   }
   
-  //Rerturns denominator
+  //Returns denominator
   public int getDen(){
 	  return denominator;
   }
+  
   
   /*FRACTION COMPARISON*/
   
@@ -121,6 +140,7 @@ class Fraction {
 		  return true;
 	  return false;
   }
+ 
   
   /**FRACTION OPERATIONS **/
   
