@@ -128,6 +128,20 @@ public class Matrix {
 		return sum;
 	}
 	
+	//Identity Matrix
+	public static Matrix I(int n){
+		Fraction[][] mat1 = new Fraction[n][n];
+		for(int i = 0; i < n; i++){
+			for(int j = 0; j < n; j++){
+				if(i == j)
+					mat1[i][j] = new Fraction(1);
+				else
+					mat1[i][j] = new Fraction(0);
+			}		
+		}
+		return new Matrix(mat1);
+	}
+	
 	
 	
 	/*MODIFIERS*/
@@ -361,18 +375,19 @@ public class Matrix {
 	}
 	
 	//Row Echelon Form (REF)
-	public Matrix REF(){
+	private Matrix ref(){
 			Fraction zero = new Fraction();
 			Fraction one = new Fraction(1);
 			Fraction neg = new Fraction(-1);
 			int n = matrix.length;
+
 			
 			Matrix A = this;
 			//The k-loop controls the elimination process
 			for(int k = 0; k < n - 1; k++){
-				
 				//If k-th entry is zero
 				if(A.mat()[k][k].isEqualTo(zero)){
+	
 					int l;
 					//look for row with no zero k-th entry
 					for(l = k+1; l < n; l++){
@@ -383,10 +398,12 @@ public class Matrix {
 						}
 					}
 					//If no such row is found
-					if(l == n)
+					if(l == n){
+						A = A.switchRows(k,n-1);
 						continue;
-				}
-				
+					}
+						
+				}		
 				//If k-th entry is not yet equal to one
 				if(A.mat()[k][k].isEqualTo(one) == false)
 					A = A.scaleRow(k,mat()[k][k].inverse());
@@ -396,18 +413,33 @@ public class Matrix {
 					A = A.addRowToRow(k, i,A.mat()[i][k].times(neg));
 				
 			}
+			//If last row contains zero
+			if(A.mat()[n-1][n-1].isEqualTo(zero) == true)
+				return A;
+			//If last row isn't equal to one yet
 			if(A.mat()[n-1][n-1].isEqualTo(one) == false)
 				A = A.scaleRow(n-1, A.mat()[n-1][n-1].inverse());
 			return A;
 		}
 
 	//Reduced Row Echelon Form (RREF)
-	public Matrix RREF(){
+	private Matrix rref(){
 		Matrix A = this;
-		A = A.REF();
-		//Write code here
+		Fraction neg = new Fraction(-1);
+		int n = matrix.length; //number of rows
+		A = A.ref();
+		
+		//k - loop controls the elimination process
+		for(int k = 1; k < n; k++){
+			//i - loop: Elimination process
+			for(int i = k-1; i >= 0; i--){
+				A = A.addRowToRow(k,i,A.mat()[i][k].times(neg));
+			}
+		}
 		return A;
 	}
+	
+	
 		
 	/*OPERATIONS*/
 	
@@ -472,7 +504,19 @@ public class Matrix {
 		return new Matrix(mat1);
 	}
 	
-	
+	//Inverse
+	public Matrix inverse(){
+		Fraction zero = new Fraction(0);
+		int n = matrix.length;
+		if(this.det().isEqualTo(zero)){
+			System.out.println("Matrix is not invertible.");
+			return null;
+		}
+		Matrix A = this.augment(I(n)).rref();
+		for(int i = 0; i < n; i++)
+			A = A.deleteColumn(0);
+		return A;
+	}
 
 	
 }
